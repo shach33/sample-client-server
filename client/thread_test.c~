@@ -69,39 +69,49 @@ void* sendReq(void *arg)
 	int i = 0, rps =0, cumlenSent = 0,reqId, ret, n = 0;
   	char addr[100], cl_addr[100], buffer1[1024];
   	int len_addr = 100;
-	struct node *tmp;
+	struct node *tmp, *tmp2;
 	
  	while(1){
 		rps = 0;
-		while(rps < REQ_RATE){  	
-  			snprintf(buffer1,sizeof(buffer1), "Cl1: %d Hello Server\n",n);
+		//printf("\nn: %d\t",n);  	
+
+		while(rps < REQ_RATE){
+			//printf("rps: %d__",rps);  	
+  			snprintf(buffer1,sizeof(buffer1), "Cl1: %d Hello Server",n);
 			ret = 0;   
   			reqId = cumlenSent;
   			ret = send(clientSocket,buffer1,strlen(buffer1),0);
 			if(ret){
+				//printf("Ret: %d  ",ret);
 				if(head==NULL){
-					tmp =(node*)malloc(sizeof(node));
+					tmp =(struct node*)malloc(sizeof(struct node));
 					tmp->req = reqId;
 					tmp->next = NULL;
 					head = tmp;
-					tail = tmp;			
+					tail = tmp;
+					//printf("\tSent in head NULL %d\n", reqId);			
 				}		
 				else{
-					tmp =(node*)malloc(sizeof(node));
+					tmp =(struct node*)malloc(sizeof(struct node));
 					tmp->req = reqId;
 					tmp->next = NULL;
 					tail->next = tmp;
 					tail = tmp;
+					//printf("Sent in else %d\n", reqId);			
+
 				}
-			}	
-  			cumlenSent+= ret;	
-			peer_addr(clientSocket, addr, len_addr);
-			my_addr(clientSocket, cl_addr, len_addr);
-  			
-			//printf("\nServer details: %s CLient %s reqID: %d",addr,cl_addr, reqId);
-			usleep(1000000/REQ_RATE);
-			rps ++;
-			n++;
+				
+  				cumlenSent+= ret;	
+				peer_addr(clientSocket, addr, len_addr);
+				my_addr(clientSocket, cl_addr, len_addr);
+  				//printf("Sent after else");
+				printf("\nServer details: %s CLient %s reqID: %d",addr,cl_addr, reqId);
+				//tmp2 = head;
+				//while(tmp2!=NULL) { printf("%d\t",tmp2->req); tmp2=tmp2->next;}
+				usleep(1000000/REQ_RATE);
+				rps ++;
+				n++;
+			}
 		}
 		
 	}
@@ -115,7 +125,8 @@ void* rcvRep(void *arg)
   	char addr[100], cl_addr[100], buffer[1024];
   	int len_addr = 100;
 	struct node *tmp;
-	
+	head = NULL;
+	tail = NULL;
 	while(1){
 		peer_addr(clientSocket, addr, len_addr);
 
@@ -192,8 +203,7 @@ int main(void)
   	ret = connect(clientSocket, (struct sockaddr *) &serverAddr, addr_size);
   	printf("\n return from connect %d, e %d\n",ret,errno); 
    
-	while(i < 2)
-    	{
+	
         	err = pthread_create(&(tid[0]), NULL, &sendReq, NULL);
         	if (err != 0)
         	    printf("\ncan't create thread 0(Send):[%s]", strerror(err));
@@ -206,8 +216,8 @@ int main(void)
         	else
         	    printf("\n Thread 1(Rcv) created successfully\n");
 	
-        	i++;
-    	}
+        	//i++;
+    	
 
     sleep(20);
     return 0;
