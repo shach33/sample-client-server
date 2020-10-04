@@ -106,7 +106,7 @@ int main(){
   	my_addr(clientfd,sr_addr, 100);
 
   	//printf("\nCLient details: %s",cl_addr);
-  	printf("\nRqst ID: %d,Reply ID: %d\n",reqId,repId);
+  	printf("Rqst ID: %d,Reply ID: %d\n",reqId,repId);
   	//fprintf(f, "Client: %s Server: %s ReqID: %d RepID: %d\n",cl_addr, sr_addr, reqId, repId);
   	n++;
  }
